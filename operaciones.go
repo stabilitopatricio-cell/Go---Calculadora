@@ -11,11 +11,9 @@ func multiplicar(operando1, operando2 float32) float32 {
 	return operando1 * operando2
 }
 func dividir(operando1, operando2 float32) float32 {
-	return operando1 / operando2
+	if operando2 <= 0 {
+		return 0
+	} else {
+		return operando1 / operando2
+	}
 }
-
-// Variables de valores
-
-var operando1 float32
-var operando2 float32
-var resultado float32

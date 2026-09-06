@@ -1,246 +1,128 @@
+# Calculadora CLI — v0.4
 
-# Calculadora Go — Documentación de evolución
-## Versión 0.3 — Separación de responsabilidades
-## Identificación de la versión
+## Objetivo
 
-    Proyecto: Calculadora básica en Go
-    Versión: v0.3
-    Objetivo principal: separación inicial de responsabilidades
-    Estado: funcional y operativo
+La versión v0.4 continúa la evolución estructural de la Calculadora, centrando el desarrollo en la separación de responsabilidades, el alcance de las variables y la mejora progresiva de la organización interna del programa.
 
-## Punto de partida
+No se incorporan nuevas operaciones. El objetivo principal es mejorar la estructura del código y desarrollar criterios de diseño aplicables a futuras versiones.
 
-La versión 0.2 había alcanzado un estado funcional estable. El programa permitía:
+## Cambios principales
+### Separación del procesamiento de opciones
 
-- Seleccionar una operación.
-- Introducir dos operandos.
-- Realizar las operaciones básicas.
-- Mostrar el resultado.
-- Controlar entradas numéricas no válidas.
-- Finalizar mediante la opción 0.
+- Se incorpora *procesOpcion( )* para centralizar el procesamiento de la opción introducida por el usuario.
 
-La v0.3 no surge para solucionar un error funcional, sino para abordar una cuestión diferente:
+- Se incorpora *procesOperacion( )* para agrupar el procesamiento relacionado con la operación solicitada. 
 
-> Organizar el código de acuerdo con las responsabilidades que desempeña cada parte del programa.
+Actualmente esta función obtiene los operandos y ejecuta la operación correspondiente.
 
-El objetivo fue comenzar a separar **Flujo principal** | **Interacción con el usuario** | **Operaciones matemáticas**.
+> procesOpcion( ): 
 
-## Problema arquitectónico identificado
+- Recibe la opción solicitada y el posible error asociado.
+- Determina si la opción es inválida.
+- Comunica la entrada y su invalidez a bucleEjecucion( ).
+- Comunica al Usuario (a través de Interfaz) cuando se introduce una opción inválida.
 
-En la versión anterior, toda la lógica se encontraba concentrada en *main*.
 
-Esto hacía que una única función asumiera simultáneamente responsabilidades de:
+> procesOperacion( ):
 
-- Control del ciclo de ejecución.
-- Interacción con el usuario.
-- Captura de entradas.
-- Conversión de datos.
-- Ejecución de operaciones.
-- Presentación de resultados.
+- Recibe la opción validada.
+- Solicita y valida los operandos y posibles errores asociados.
+- Coordina las operaciones solicitadas.
+- Comunica al Usuario (a través de Interfaz) el resultado de las operaciones y cuando se introduce un operando inválido.
+- Comunica la validéz o invalidéz de las entradas a bucleEjecucion( ).
 
-Aunque el programa funcionaba correctamente, esta concentración dificultaba distinguir las diferentes responsabilidades.
+> bucleEjecucion( ):
 
-La v0.3 utiliza esta situación como oportunidad para introducir una primera separación estructural.
+- Recibe el resultado de estos procesamientos y decide la acción de control de flujo correspondiente.
 
-## Separación de archivos
+### Separación del procesamiento de operaciones
 
-El código se reorganizó en tres componentes que componen el *paquete main*:
+Esta separación constituye una primera aproximación a una organización por responsabilidades y podría evolucionar en versiones posteriores si la complejidad del programa lo requiere.
 
-- main.go
-- interfazCli.go
-- operaciones.go
+### Alcance de las variables
 
-### main.go
+Se revisa el ámbito de las variables utilizadas para representar textos de la interfaz.
 
-#### Responsabilidad principal:
+Los datos que pertenecen exclusivamente a una función pasan progresivamente a declararse como variables locales, evitando mantener como estado global información que no necesita ser compartida.
 
-> Coordinar el flujo de ejecución del programa.
+> Se aplica el criterio:
 
-##### Contenido:
+    Una información debe tener el menor alcance necesario para cumplir su responsabilidad.
 
-- Decisiones sobre el flujo.
-- Tratamiento de los errores recibidos.
-- Decisiones de coordinación de ejecución de operaciones.
+### Evaluación de estructuras 
 
-### interfazCli.go
+> Cada modificación debe evaluarse según:
 
-#### Responsabilidad principal:
+- Utilidad real.
+- Legibilidad.
+- Responsabilidad.
+- Mantenibilidad.
+- Escalado.
 
-> Gestionar la interacción entre el usuario y el programa.
+### Conceptos consolidados
 
-###### Contenido:
+- Ámbito de las variables.
+- Ciclo de vida de los datos.
+- Variables locales frente a variables globales.
+- Retorno de múltiples valores.
+- Propagación de resultados entre funciones.
+- Separación de responsabilidades.
+- Control del flujo mediante continue y break.
+- Procesamiento y validación de entradas.
+- Formateo de valores mediante fmt.
+- Especificadores de formato como %.2f.
+- Evaluación crítica de sugerencias del compilador y del editor.
+- Estado funcional
 
-- Solicitudes de entrada.
-- Escaneo de valores introducidos.
-- Conversión de entradas.
-- Comunicación de valores y errores.
-- Funciones de presentación.
-- Información textual de la interfaz.
+La calculadora incorpora las operaciones implementadas en versiones anteriores:
 
-### operaciones.go
+- Suma
+- Resta
+- Multiplicación
+- División
 
-#### Responsabilidad principal:
+>También incorpora:
 
-> Realizar las operaciones matemáticas.
+- Menú interactivo.
+- Validación de la opción introducida.
+- Salida mediante la opción correspondiente.
+- Solicitud de operandos.
+- Gestión de entradas inválidas.
+- Presentación del resultado.
+- Limpieza de la terminal entre iteraciones.
 
-###### Contenido:
+### Criterio de evolución
 
-- Funciones que ejecutan las operaciones.
+La v0.4 establece una etapa intermedia entre una implementación funcional y una organización progresivamente más profesional.
 
-Estas reciben los operandos y devuelven el resultado correspondiente.
+Las modificaciones estructurales no se realizan únicamente para reducir líneas de código, sino para conseguir una distribución más clara de responsabilidades y facilitar la evolución futura del programa.
 
-## Evolución del tratamiento de errores
+Las decisiones de esta versión quedan cerradas como base para la siguiente etapa de desarrollo.
 
-Durante la refactorización apareció una cuestión importante:
+## Evolución formativa
 
-    ¿Quién debe decidir qué hacer cuando una entrada produce un error?
+La versión v0.4 me supone un avance importante no tanto por incorporar nuevas funcionalidades, sino por el cambio en la forma de analizar y estructurar el código.
 
-Se estableció una separación entre detección y decisión.
+Durante esta etapa siento que  empiezo a pasar de una visión centrada principalmente en hacer que el programa funcione a una visión más orientada a comprender por qué una determinada estructura es más adecuada que otra.
 
-### Interfaz
+> Observo una evolución en varios aspectos:
 
-La interfaz realiza la conversión que puede producir el error.
+- Mayor atención al alcance de las variables y a su ciclo de vida.
+- Comprensión de que una variable global no debe mantenerse como tal si solo pertenece a una función concreta.
+- Uso más consciente del paso de información mediante parámetros y valores de retorno.
+- Capacidad para distinguir entre una mejora funcional y una mejora estructural.
+- Comprensión de que separar responsabilidades puede mejorar mantenibilidad y escalabilidad aunque aumente o no reduzca el número de líneas.
+- Mayor criterio para decidir cuándo una abstracción aporta valor y cuándo introduce complejidad innecesaria.
+- Evaluación crítica de las sugerencias del editor o del lenguaje, evitando asumir que toda recomendación debe aplicarse automáticamente.
+- Mayor atención a la semántica de los nombres y a la legibilidad del código.
+- Inicio de una visión más arquitectónica del programa, pensando en cómo podrían evolucionar sus responsabilidades en futuras versiones.
+- Ampliación de vocabulario técnico y mayor soltura se expresión.
+- Inicio de desarrollo estructural de la documentación.
 
-Por ejemplo:
+> También se consolida una forma de razonamiento más cercana al desarrollo profesional:
 
-    operando, err := strconv.ParseFloat(entrada, 32)
-    return float32(operando), err
+No basta con preguntarse si el código funciona; también es necesario analizar si sus responsabilidades están bien distribuidas, si los datos tienen el alcance adecuado y si la estructura facilita futuras modificaciones.
 
-La función comunica:
+Esta versión refleja, por tanto, una transición desde una implementación principalmente funcional hacia una forma de programación progresivamente más consciente del diseño, la mantenibilidad e intención del código.
 
-    - Valor obtenido
-    - Error producido, si existe.
-
-No decide qué debe hacer el programa con ese error.
-
-### Main
-
-main recibe el resultado y decide cómo continuar:
-
-    operando1, err = solicitarOperando1()
-
-    if err != nil {
-        mostrarInvalido()
-        continue
-    }
-
-La decisión pertenece al flujo de ejecución:
-
-    Mostrar información al usuario -> Descartar la iteración -> Volver a comenzar el ciclo.
-
-### Principio establecido
-
-- Interfaz recibe, detecta, comunica errores de entrada y devuelve información al Usuario
-- Main decide que hacer con los datos.
-
-Esta distinción permitió evitar que la interfaz asumiera responsabilidades propias del flujo principal.
-
-## Reducción de estado global
-
-Se eliminó:
-
-> var opcionSolicitada int:
-
-Porque main ya obtiene directamente la opción mediante:
-
-    opcionSolicitada, err := solicitarOpcion()
-
-También se eliminó:
-
-> var opcionIngresada string
-
-    Al comprobar que su función podía resolverse dentro del ámbito local de solicitarOpcion( ).
-
-> Esto representa una mejora respecto a la versión anterior:
-
-    Un dato debe permanecer en el ámbito más reducido posible cuando no necesita ser compartido.
-
-## Responsabilidades consolidadas
-
-### Interfaz
-
-> Solicita -> captura -> convierte -> comunica
-
-### Main
-
-> Recibe -> interpreta -> decide -> coordina
-
-### Operaciones
-
-> Recibe operandos -> calcula -> devuelve resultado
-
-##  Metodología aplicada
-
-La v0.3 permitió evolucionar la metodología utilizada durante el desarrollo.
-
-Inicialmente, el proceso se centraba principalmente en:
-
-    Problema -> Análisis -> Modificación -> Comprobación
-
-Durante esta versión se incorporó una segunda dimensión:
-
-    Funcionamiento -> Análisis de responsabilidades -> Identificación de solapamientos -> Decisión arquitectónica -> Modificación -> Comprobación
-
-Esto supone un cambio importante en el tipo de problemas abordados.
-
-En la v0.2 se trabajó principalmente sobre comportamiento funcional.
-
-En la v0.3 se comenzó a trabajar sobre organización interna del programa.
-
-## Autoevaluación del proceso
-
-Una de las principales conclusiones obtenidas durante esta versión fue que un programa puede funcionar correctamente y, aun así, presentar oportunidades de mejora estructural.
-
-También se comprobó que una refactorización puede generar errores que no existían en el programa original.
-
-Durante la migración aparecieron problemas relacionados con:
-
-- Ámbitos de variables.
-- Valores de retorno.
-- Tipos incompatibles.
-- Nombres duplicados.
-- Comunicación entre funciones.
-- Replanteamiento de responsabilidades.
-
-Estos problemas no representaban fallos de la lógica original, sino consecuencias de reorganizar su estructura.
-
-El proceso permitió utilizar esos errores como información para comprender mejor el funcionamiento del lenguaje y las responsabilidades de cada componente.
-
-## Elementos deliberadamente pendientes
-
-He identificado cuestiones que no se incorporaron todavía para evitar ampliar innecesariamente el alcance de esta versión.
-
-Estado de variables globales:
-
-    La utilización de:
-
-    var operando1
-    var operando2
-    var resultado
-
-    como estado compartido queda pendiente de revisión.
-
-### Abstracción de funciones
-
-    solicitarOperando1() y solicitarOperando2()  presentan cierta duplicación.
-
->No se ha eliminado todavía porque hacerlo introduciría una nueva abstracción que no es necesaria para alcanzar el objetivo principal de esta versión.
-
-    scanner.Scan()
-    scanner.Err()
-
-> La aplicación actualmente funciona correctamente bajo el escenario previsto, por lo que esta cuestión no se incorpora como modificación de cierre.
-
-## Resultado de la versión
-
-La v0.3 mantiene el comportamiento funcional de la calculadora y mejora su organización interna.
-
-> El cambio fundamental:
-
-    Límites claros entre las partes del programa.
-
-## Aprendizaje consolidado
-
-El aprendizaje principal de esta versión puede resumirse en una idea:
-
-    La calidad de un programa no depende únicamente de que produzca el resultado correcto, sino también de cómo organiza las responsabilidades necesarias para producirlo.
+El objetivo formativo continúa siendo avanzar de manera incremental: primero comprender el fundamento, después aplicarlo en Go y, finalmente, desarrollar criterio para justificar cada decisión de implementación.
