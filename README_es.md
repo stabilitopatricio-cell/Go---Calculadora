@@ -1,283 +1,246 @@
 
-# Análisis de evolución — Calculadora Go v0.2
+# Calculadora Go — Documentación de evolución
+## Versión 0.3 — Separación de responsabilidades
+## Identificación de la versión
+
+    Proyecto: Calculadora básica en Go
+    Versión: v0.3
+    Objetivo principal: separación inicial de responsabilidades
+    Estado: funcional y operativo
 
 ## Punto de partida
 
-> La v0.1 tenía un objetivo deliberadamente limitado:
+La versión 0.2 había alcanzado un estado funcional estable. El programa permitía:
 
-- Conseguir una calculadora básica funcional.
+- Seleccionar una operación.
+- Introducir dos operandos.
+- Realizar las operaciones básicas.
+- Mostrar el resultado.
+- Controlar entradas numéricas no válidas.
+- Finalizar mediante la opción 0.
 
-> La aplicación permitía:
+La v0.3 no surge para solucionar un error funcional, sino para abordar una cuestión diferente:
 
-    - Seleccionar una operación.
-    - Introducir dos operandos.
-    - Realizar suma, resta, multiplicación y división.
-    - Salir mediante la opción 0.
+> Organizar el código de acuerdo con las responsabilidades que desempeña cada parte del programa.
 
-> No era una implementación ideal. Su propósito era demostrar que el programa podía funcionar de extremo a extremo.
+El objetivo fue comenzar a separar **Flujo principal** | **Interacción con el usuario** | **Operaciones matemáticas**.
 
-> La v0.2 parte de esa base sin intentar todavía refactorizarla completamente.
+## Problema arquitectónico identificado
 
-## Problema principal detectado
+En la versión anterior, toda la lógica se encontraba concentrada en *main*.
 
-> Durante la utilización de la *v0.1* apareció un comportamiento no deseado al introducir una opción con varios caracteres.
+Esto hacía que una única función asumiera simultáneamente responsabilidades de:
 
-- Por ejemplo:
+- Control del ciclo de ejecución.
+- Interacción con el usuario.
+- Captura de entradas.
+- Conversión de datos.
+- Ejecución de operaciones.
+- Presentación de resultados.
 
-    La entrada *1.5* no era tratada como una única unidad por *fmt.Scanln* en el contexto utilizado.
+Aunque el programa funcionaba correctamente, esta concentración dificultaba distinguir las diferentes responsabilidades.
 
-    Esto provocaba que *1.5* terminara siendo procesado parcialmente y que el valor restante afectara a la siguiente lectura.
+La v0.3 utiliza esta situación como oportunidad para introducir una primera separación estructural.
 
-> El problema no era simplemente:
+## Separación de archivos
 
-    "No se convertir 1.5."
+El código se reorganizó en tres componentes que componen el *paquete main*:
 
-> El problema fundamental era que:
+- main.go
+- interfazCli.go
+- operaciones.go
 
-- El mecanismo utilizado para capturar la entrada no estaba proporcionando el modelo de entrada que necesitábamos.
+### main.go
 
-> Esta distinción fue determinante para encontrar la solución.
+#### Responsabilidad principal:
 
-## Cambio fundamental
-### fmt.Scanln → bufio.Scanner
+> Coordinar el flujo de ejecución del programa.
 
-> Introduje:
+##### Contenido:
 
-    scanner := bufio.NewScanner(os.Stdin)
+- Decisiones sobre el flujo.
+- Tratamiento de los errores recibidos.
+- Decisiones de coordinación de ejecución de operaciones.
 
-> y posteriormente:
+### interfazCli.go
+
+#### Responsabilidad principal:
+
+> Gestionar la interacción entre el usuario y el programa.
+
+###### Contenido:
+
+- Solicitudes de entrada.
+- Escaneo de valores introducidos.
+- Conversión de entradas.
+- Comunicación de valores y errores.
+- Funciones de presentación.
+- Información textual de la interfaz.
+
+### operaciones.go
+
+#### Responsabilidad principal:
+
+> Realizar las operaciones matemáticas.
+
+###### Contenido:
+
+- Funciones que ejecutan las operaciones.
+
+Estas reciben los operandos y devuelven el resultado correspondiente.
+
+## Evolución del tratamiento de errores
+
+Durante la refactorización apareció una cuestión importante:
+
+    ¿Quién debe decidir qué hacer cuando una entrada produce un error?
+
+Se estableció una separación entre detección y decisión.
+
+### Interfaz
+
+La interfaz realiza la conversión que puede producir el error.
+
+Por ejemplo:
+
+    operando, err := strconv.ParseFloat(entrada, 32)
+    return float32(operando), err
+
+La función comunica:
+
+    - Valor obtenido
+    - Error producido, si existe.
+
+No decide qué debe hacer el programa con ese error.
+
+### Main
+
+main recibe el resultado y decide cómo continuar:
+
+    operando1, err = solicitarOperando1()
+
+    if err != nil {
+        mostrarInvalido()
+        continue
+    }
+
+La decisión pertenece al flujo de ejecución:
+
+    Mostrar información al usuario -> Descartar la iteración -> Volver a comenzar el ciclo.
+
+### Principio establecido
+
+- Interfaz recibe, detecta, comunica errores de entrada y devuelve información al Usuario
+- Main decide que hacer con los datos.
+
+Esta distinción permitió evitar que la interfaz asumiera responsabilidades propias del flujo principal.
+
+## Reducción de estado global
+
+Se eliminó:
+
+> var opcionSolicitada int:
+
+Porque main ya obtiene directamente la opción mediante:
+
+    opcionSolicitada, err := solicitarOpcion()
+
+También se eliminó:
+
+> var opcionIngresada string
+
+    Al comprobar que su función podía resolverse dentro del ámbito local de solicitarOpcion( ).
+
+> Esto representa una mejora respecto a la versión anterior:
+
+    Un dato debe permanecer en el ámbito más reducido posible cuando no necesita ser compartido.
+
+## Responsabilidades consolidadas
+
+### Interfaz
+
+> Solicita -> captura -> convierte -> comunica
+
+### Main
+
+> Recibe -> interpreta -> decide -> coordina
+
+### Operaciones
+
+> Recibe operandos -> calcula -> devuelve resultado
+
+##  Metodología aplicada
+
+La v0.3 permitió evolucionar la metodología utilizada durante el desarrollo.
+
+Inicialmente, el proceso se centraba principalmente en:
+
+    Problema -> Análisis -> Modificación -> Comprobación
+
+Durante esta versión se incorporó una segunda dimensión:
+
+    Funcionamiento -> Análisis de responsabilidades -> Identificación de solapamientos -> Decisión arquitectónica -> Modificación -> Comprobación
+
+Esto supone un cambio importante en el tipo de problemas abordados.
+
+En la v0.2 se trabajó principalmente sobre comportamiento funcional.
+
+En la v0.3 se comenzó a trabajar sobre organización interna del programa.
+
+## Autoevaluación del proceso
+
+Una de las principales conclusiones obtenidas durante esta versión fue que un programa puede funcionar correctamente y, aun así, presentar oportunidades de mejora estructural.
+
+También se comprobó que una refactorización puede generar errores que no existían en el programa original.
+
+Durante la migración aparecieron problemas relacionados con:
+
+- Ámbitos de variables.
+- Valores de retorno.
+- Tipos incompatibles.
+- Nombres duplicados.
+- Comunicación entre funciones.
+- Replanteamiento de responsabilidades.
+
+Estos problemas no representaban fallos de la lógica original, sino consecuencias de reorganizar su estructura.
+
+El proceso permitió utilizar esos errores como información para comprender mejor el funcionamiento del lenguaje y las responsabilidades de cada componente.
+
+## Elementos deliberadamente pendientes
+
+He identificado cuestiones que no se incorporaron todavía para evitar ampliar innecesariamente el alcance de esta versión.
+
+Estado de variables globales:
+
+    La utilización de:
+
+    var operando1
+    var operando2
+    var resultado
+
+    como estado compartido queda pendiente de revisión.
+
+### Abstracción de funciones
+
+    solicitarOperando1() y solicitarOperando2()  presentan cierta duplicación.
+
+>No se ha eliminado todavía porque hacerlo introduciría una nueva abstracción que no es necesaria para alcanzar el objetivo principal de esta versión.
 
     scanner.Scan()
-    opcionIngresada = scanner.Text()*
+    scanner.Err()
 
-> El cambio modifica el modelo de entrada:
+> La aplicación actualmente funciona correctamente bajo el escenario previsto, por lo que esta cuestión no se incorpora como modificación de cierre.
 
-- ANTES:
+## Resultado de la versión
 
-    entrada -> *Scanln* -> interpretación/conversión
+La v0.3 mantiene el comportamiento funcional de la calculadora y mejora su organización interna.
 
-- AHORA:
+> El cambio fundamental:
 
-    entrada -> *Scanner* -> *string* -> *strconv* -> tipo
----
-### Impacto en el funcionamiento
+    Límites claros entre las partes del programa.
 
-> Una entrada como:
+## Aprendizaje consolidado
 
-    1.5
+El aprendizaje principal de esta versión puede resumirse en una idea:
 
-> se captura como una única línea:
-
-    "1.5"
-
-> Ya no depende de que *Scanln* vaya consumiendo parcialmente los elementos de la entrada.
-
-> Esto resuelve el problema funcional que originó la investigación.
-
-## Separación entre captura y conversión
-
-> Este ha sido probablemente el cambio conceptual más importante de la versión.
-
-> La entrada del usuario se captura primero como texto:
-
-    entradaNum1 := scanner.Text()
-
-> y posteriormente se interpreta:
-
-    operando1, err := strconv.ParseFloat(entradaNum1, 32)
-
-> Por tanto:
-
-    CAPTURA:
-
-    Scanner -> string
-
-    INTERPRETACIÓN:
-
-    strconv -> float32
-
-> Esto introduce una separación clara de responsabilidades.
-
-### Impacto
-
-> Ahora el programa puede distinguir entre:
-
-    - ¿Qué ha introducido el usuario?
-    - ¿Cómo se interpreta esa entrada?
-    - ¿La interpretación ha sido posible?
-
-> Esto será especialmente importante cuando aumente la complejidad del programa.
-
-## Introducción práctica de error
-
-> Ya había implementado previamente:
-
-    numero, err := strconv.Atoi(...)
-
-> En esta versión el concepto se aplica de forma práctica también a los operandos:
-
-    operando1, err := strconv.ParseFloat(entradaNum1, 32)
-
-> y:
-
-    if err != nil {
-        ...
-        continue
-    }
-
-> Esto permite detectar una entrada como:
-
-    abc
-
-> sin provocar que el programa continúe utilizando un valor numérico inválido.
-
-### Impacto
-
-> La aplicación adquiere una primera capa explícita de validación.
-
-> No se trata todavía de un sistema completo de validación, pero sí de una mejora importante respecto a la v0.1.
-
-### Introducción de continue como mecanismo de recuperación
-
-> Ya tenía incorporado *for* como bucle principal de ejecución.
-
-> En esta versión *continue* adquiere una función práctica:
-
-    if err != nil {
-        fmt.Println(...)
-        continue
-    }
-
-> La aplicación puede ahora:
-
-    entrada incorrecta -> mostrar mensaje -> descartar iteración actual -> volver al menú
-
-> Esto permite que un error de entrada no termine el programa.
-
-## Uso de switch
-
-> La ejecución de las operaciones pasó de una cadena de *if / else if* a:
-
-    switch opcionSolicitada {
-    case 1:
-        ...
-    case 2:
-        ...
-    case 3:
-        ...
-    case 4:
-        ...
-    }
-
-### Impacto
-
-> No añade una capacidad nueva al programa, pero mejora la correspondencia entre la estructura del código y su propósito:
-
-    opción 1 → operación 1
-    opción 2 → operación 2
-    opción 3 → operación 3
-    opción 4 → operación 4
-
-> También prepara el código para una futura ampliación del número de operaciones.
-
-> La refactorización completa de esta estructura, no obstante, queda deliberadamente fuera de esta versión.
-
-## Metodología aplicada
-
-> La metodología que he intentado aplicar ha sido algo similar a:
- 
-    PRUEBA DE FUNCIONAMIENTO
-        ↓
-    PROBLEMA
-        ↓
-    OBSERVACIÓN
-        ↓
-    EXPERIMENTACIÓN
-        ↓
-    HIPÓTESIS
-        ↓
-    NUEVA EXPERIMENTACIÓN
-        ↓
-    REFORMULACIÓN DEL PROBLEMA
-        ↓
-    DOCUMENTACIÓN OFICIAL
-        ↓
-    COMPARACIÓN DE ALTERNATIVAS
-        ↓
-    ELECCIÓN
-        ↓
-    IMPLEMENTACIÓN
-        ↓
-    PRUEBA
-
-### Observación
-
-> Durante la prueba de funcionamiento se advierten comportamientos concretos:
-
-    1.5 → comportamiento inesperado
-
-> Al observar comoportamientos no deseados, hé realizado deliberadamente pruebas adicionales para provocar todos los comoportamientos a corregir y abordarlos en conjunto:
-
-    g
-    gh
-    1.5
-    Hola
-    dh,sdjo.123
-    1.2,4.r,f
-    etc
-
-> Esto me confirmó que el problema era más amplio que un caso concreto.
-
-### Reformulación
-
-> La primera interpretación me sugirió:
-
-    "Tengo un problema de conversión."
-
-> Pero el análisis posterior me permitió especificar mejor:
-
-    Tengo un problema relacionado con cómo se captura y delimita la entrada.
-
-> Esto cambia directamente el enfoque.
-
-### Comparación de alternativas
-
-> Hé analizado la documentación oficial de <https://pkg.go.dev/std>. Específicamente los paquetes *fmt, bufio, errors, io, strconv, string, stucts y builtin*.
-
-> Y lo que se acercaba mas a mi situación era:
-
-    fmt.Scanln
-    strconv
-    bufio.Reader
-    bufio.Scanner
-
-> Luego se especificaron sus responsabilidades.
-
-> La conclusión fue:
-
-    Scanner -> capturar
-    strconv -> convertir
-
-> en lugar de intentar utilizar una única herramienta para resolver ambas cuestiones.
-
-### Utilización de documentación oficial
-
-> Esto permitió comprobar específicamente el funcionamiento de bufio.Scanner, ScanLines, Text, Scan, Err, Reader, etc.
-
-> La documentación dejó de ser simplemente una fuente para **buscar una función** y pasó a utilizarse para **evaluar** alternativas de diseño.
-
-## Evolución de la formación
-
-> La formación también ha avanzado junto al proyecto.
-
-> En la v0.1 predominaba:
-
-    ¿Cómo hago que funcione?
-
-> En la v0.2 empieza a aparecer:
-
-    ¿Qué está haciendo realmente el programa?
-
-> El proyecto empieza a dejar de ser solamente un ejercicio de sintaxis Go y comienza a funcionar como instrumento para aprender y pulir la  metodología aplicada.
-
-
+    La calidad de un programa no depende únicamente de que produzca el resultado correcto, sino también de cómo organiza las responsabilidades necesarias para producirlo.
