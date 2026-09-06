@@ -14,10 +14,9 @@ func main() {
 func bucleEjecucion() {
 
 	for {
-		var operando1, operando2 float32
 		mostrarTitulo()
 		mostrarMenu()
-		opcionSolicitada, err := solicitarOpcion()
+		opcionSolicitada, err := solEntrOpcion()
 		opcionInvalida, opcionRecogida := procesOpcion(opcionSolicitada, err)
 		if opcionInvalida == true {
 			esperaContinuar()
@@ -28,12 +27,12 @@ func bucleEjecucion() {
 			esperaContinuar()
 			limpiarTerminal()
 			break
-		} else if opcionRecogida <= 0 || opcionRecogida > 4 {
+		} else if opcionRecogida <= 0 || opcionRecogida > 6 {
 			esperaContinuar()
 			limpiarTerminal()
 			continue
 		}
-		operandoInvalido := procesOperacion(opcionRecogida, operando1, operando2, err)
+		operandoInvalido, _ := procesOperacion(opcionRecogida)
 
 		if operandoInvalido == true {
 			esperaContinuar()
@@ -64,33 +63,35 @@ func procesOpcion(opcionSolicitada int, err error) (bool, int) {
 	case opcionRecogida == 0:
 		mostrarSalida()
 		return false, opcionRecogida
-	case opcionRecogida >= 1 && opcionRecogida <= 4:
+	case opcionRecogida >= 1 && opcionRecogida <= 6:
 		return false, opcionRecogida
 	default:
 		mostrarInvalido()
 		return false, opcionRecogida
 	}
 }
-func procesOperacion(opcionSolicitada int, operando1 float32, operando2 float32, err error) (operandoInvalido bool) {
-	var resultado float32
-	if err != nil {
-		mostrarInvalido()
-		return true
-	} else {
-		operando1, err = solicitarOperando1()
-		operando2, err = solicitarOperando2()
-	}
-	switch opcionSolicitada {
-	case 1:
-		resultado = sumar(operando1, operando2)
-	case 2:
-		resultado = restar(operando1, operando2)
-	case 3:
-		resultado = multiplicar(operando1, operando2)
-	case 4:
-		resultado = dividir(operando1, operando2)
+func procesOperacion(opcionrecogida int) (operandoInvalido bool, resulOpr float32) {
 
+	switch opcionrecogida {
+	case 1:
+		sumando1, sumando2, _ := solOperAdicion()
+		resulOpr = calcAdicion(sumando1, sumando2)
+	case 2:
+		minuendo, sustraendo, _ := solOperSustraccion()
+		resulOpr = calcSustraccion(minuendo, sustraendo)
+	case 3:
+		factor1, factor2, _ := solOperMultipicacion()
+		resulOpr = calcMultiplicacion(factor1, factor2)
+	case 4:
+		dividendo, divisor, _ := solOperDivision()
+		resulOpr = calcDivision(dividendo, divisor)
+	case 5:
+		base, exponente, _ := solOperPotencia()
+		resulOpr = calcPotencia(base, exponente)
+	case 6:
+		radicando, indice, _ := solOperRaiz()
+		resulOpr = calcRaiz(radicando, indice)
 	}
-	mostrarResultado(resultado)
-	return false
+	mostrarResulOpr(opcionrecogida, resulOpr)
+	return false, resulOpr
 }

@@ -1,19 +1,34 @@
 package main
 
+import (
+	"math"
+)
+
 // Funciones de operaciones
-func sumar(operando1, operando2 float32) float32 {
-	return operando1 + operando2
+func calcAdicion(sumando1 float32, sumando2 float32) float32 {
+	return sumando1 + sumando2
 }
-func restar(operando1, operando2 float32) float32 {
-	return operando1 - operando2
+func calcSustraccion(minuendo float32, sustraendo float32) float32 {
+	diferencia := minuendo - sustraendo
+	return diferencia
 }
-func multiplicar(operando1, operando2 float32) float32 {
-	return operando1 * operando2
+func calcMultiplicacion(factor1 float32, factor2 float32) float32 {
+	producto := factor1 * factor2
+	return producto
 }
-func dividir(operando1, operando2 float32) float32 {
-	if operando2 <= 0 {
+func calcDivision(dividendo float32, divisor float32) float32 {
+	cociente := dividendo / divisor
+	if divisor == 0 {
 		return 0
 	} else {
-		return operando1 / operando2
+		return cociente
 	}
+}
+func calcPotencia(base float32, exponente float32) float32 {
+	potencia := float32(math.Pow(float64(base), float64(exponente)))
+	return potencia
+}
+func calcRaiz(radicando float32, indice float32) float32 {
+	raiz := float32(math.Pow(float64(radicando), 1/float64(indice)))
+	return float32(raiz)
 }

@@ -1,128 +1,364 @@
-# Calculadora CLI — v0.4
+# Calculadora básica — Go ( by Stapaher )
 
-## Objetivo
+## 1. Descripción
 
-La versión v0.4 continúa la evolución estructural de la Calculadora, centrando el desarrollo en la separación de responsabilidades, el alcance de las variables y la mejora progresiva de la organización interna del programa.
+Ésta en mi *Calculadora básica* desarrollada en **Go** como primer proyecto práctico de programación.
 
-No se incorporan nuevas operaciones. El objetivo principal es mejorar la estructura del código y desarrollar criterios de diseño aplicables a futuras versiones.
+El proyecto tiene como objetivo materializar los conceptos fundamentales de programación mediante una aplicación de consola funcional, aplicando progresivamente principios de organización, separación de responsabilidades, flujo de datos y control de ejecución.
 
-## Cambios principales
-### Separación del procesamiento de opciones
+**Versión actual:** `v1.0`
+**Estado:** Finalizada
 
-- Se incorpora *procesOpcion( )* para centralizar el procesamiento de la opción introducida por el usuario.
+---
 
-- Se incorpora *procesOperacion( )* para agrupar el procesamiento relacionado con la operación solicitada. 
+## 2. Funcionalidades
 
-Actualmente esta función obtiene los operandos y ejecuta la operación correspondiente.
+> La aplicación permite realizar seis operaciones matemáticas básicas:
 
-> procesOpcion( ): 
+1. Adición
+2. Sustracción
+3. Multiplicación
+4. División
+5. Potenciación
+6. Radicación
 
-- Recibe la opción solicitada y el posible error asociado.
-- Determina si la opción es inválida.
-- Comunica la entrada y su invalidez a bucleEjecucion( ).
-- Comunica al Usuario (a través de Interfaz) cuando se introduce una opción inválida.
+Y finalizar la ejecución desde el menú principal.
+
+---
+
+## 3. Características
+
+* Funciona mediante interfaz de línea de comandos.
+* Solicita y valida la opción seleccionada por el usuario.
+* Solicita los operandos correspondientes a cada operación.
+* Convierte las entradas de texto a los tipos numéricos necesarios.
+* Controla las entradas no válidas.
+* Mantiene el flujo principal mediante un bucle de ejecución.
+* Separa la entrada, el procesamiento, el cálculo y la presentación.
+* Utiliza funciones específicas para cada responsabilidad.
+* Utiliza `math.Pow()` para las operaciones de potenciación y radicación.
+
+---
+
+## 4. Estructura funcional
+
+La aplicación está organizada conceptualmente en cuatro áreas principales:
+
+### Entrada
+
+> Responsable de obtener información introducida por el usuario.
+
+```text
+solEntrUsr()
+solEntrOpcion()
+solOperAdicion()
+solOperSustraccion()
+solOperMultipicacion()
+solOperDivision()
+solOperPotencia()
+solOperRaiz()
+```
+
+La entrada general se obtiene como `string`. La conversión al tipo correspondiente se realiza posteriormente según el significado de los datos.
+
+### Procesamiento
+
+> Responsable de interpretar las opciones y dirigir la ejecución.
+
+```text
+procesOpcion()
+procesOperacion()
+```
+
+### Cálculo
+
+> Responsable de realizar las operaciones matemáticas.
+
+```text
+calcAdicion()
+calcSustraccion()
+calcMultiplicacion()
+calcDivision()
+calcPotencia()
+calcRaiz()
+```
+
+### Salida
+
+> Responsable de presentar información al usuario.
+
+```text
+mostrarTitulo()
+mostrarMenu()
+mostrarResulOpr()
+mostrarSalida()
+mostrarInvalido()
+```
+
+---
+
+## 5. Flujo general de ejecución
+
+El flujo principal de la aplicación es:
+
+```text
+main()
+  ↓
+bucleEjecucion()
+  ↓
+mostrarTitulo()
+  ↓
+mostrarMenu()
+  ↓
+solEntrOpcion()
+  ↓
+procesOpcion()
+  ↓
+procesOperacion()
+  ↓
+solOper...
+  ↓
+calc...
+  ↓
+mostrarResulOpr()
+  ↓
+esperaContinuar()
+  ↓
+limpiarTerminal()
+  ↓
+siguiente iteración
+```
+
+La función `bucleEjecucion()` mantiene el ciclo de vida de la aplicación y determina cuándo continuar o finalizar.
+
+---
+
+## 6. Operaciones matemáticas
+
+### Adición
+
+Recibe dos sumandos y devuelve la suma.
+
+```text
+sumando1 + sumando2 → suma
+```
+
+### Sustracción
+
+Recibe minuendo y sustraendo y devuelve la diferencia.
+
+```text
+minuendo - sustraendo → diferencia
+```
+
+### Multiplicación
+
+Recibe dos factores y devuelve el producto.
+
+```text
+factor1 × factor2 → producto
+```
+
+### División
+
+Recibe dividendo y divisor y devuelve el cociente.
+
+```text
+dividendo ÷ divisor → cociente
+```
+
+La división por cero se controla antes de devolver el resultado.
+
+### Potenciación
+
+Recibe base y exponente.
+
+```text
+base^exponente → potencia
+```
+
+Se implementa mediante `math.Pow()`.
+
+### Radicación
+
+Recibe radicando e índice.
+
+```text
+ⁿ√radicando → raíz
+```
+
+Se implementa mediante la equivalencia matemática:
+
+```text
+ⁿ√x = x^(1/n)
+```
+
+utilizando `math.Pow()`.
+
+---
+
+## 7. Control del flujo
+
+El programa utiliza un bucle `for` para mantener activa la calculadora.
+
+El control del flujo bucle es la única responsabilidad de *bucleEjecucion( )*:
+
+* `continue`: reinicia la iteración actual.
+* `break`: finaliza el bucle.
 
 
-> procesOperacion( ):
+Las funciones auxiliares proporcionan información al bucle para que este pueda determinar el flujo que debe seguir.
 
-- Recibe la opción validada.
-- Solicita y valida los operandos y posibles errores asociados.
-- Coordina las operaciones solicitadas.
-- Comunica al Usuario (a través de Interfaz) el resultado de las operaciones y cuando se introduce un operando inválido.
-- Comunica la validéz o invalidéz de las entradas a bucleEjecucion( ).
+---
 
-> bucleEjecucion( ):
+## 8. Gestión de errores
 
-- Recibe el resultado de estos procesamientos y decide la acción de control de flujo correspondiente.
+Las entradas del usuario se reciben inicialmente como texto.
 
-### Separación del procesamiento de operaciones
+Posteriormente se convierten mediante:
 
-Esta separación constituye una primera aproximación a una organización por responsabilidades y podría evolucionar en versiones posteriores si la complejidad del programa lo requiere.
+```go
+strconv.Atoi()
+```
 
-### Alcance de las variables
+para las opciones del menú y:
 
-Se revisa el ámbito de las variables utilizadas para representar textos de la interfaz.
+```go
+strconv.ParseFloat()
+```
 
-Los datos que pertenecen exclusivamente a una función pasan progresivamente a declararse como variables locales, evitando mantener como estado global información que no necesita ser compartida.
+para los valores numéricos.
 
-> Se aplica el criterio:
+Los errores de conversión se propagan mediante valores `error` y son tratados antes de continuar con la operación correspondiente.
 
-    Una información debe tener el menor alcance necesario para cumplir su responsabilidad.
+---
 
-### Evaluación de estructuras 
+## 9. Tipos numéricos
 
-> Cada modificación debe evaluarse según:
+Las operaciones matemáticas de la calculadora utilizan `float32`.
 
-- Utilidad real.
-- Legibilidad.
-- Responsabilidad.
-- Mantenibilidad.
-- Escalado.
+Las funciones de `math` utilizadas para potenciación y radicación trabajan con `float64`, por lo que se realizan las conversiones necesarias:
 
-### Conceptos consolidados
+```text
+float32
+   ↓
+float64
+   ↓
+math.Pow()
+   ↓
+float64
+   ↓
+float32
+```
 
-- Ámbito de las variables.
-- Ciclo de vida de los datos.
-- Variables locales frente a variables globales.
-- Retorno de múltiples valores.
-- Propagación de resultados entre funciones.
-- Separación de responsabilidades.
-- Control del flujo mediante continue y break.
-- Procesamiento y validación de entradas.
-- Formateo de valores mediante fmt.
-- Especificadores de formato como %.2f.
-- Evaluación crítica de sugerencias del compilador y del editor.
-- Estado funcional
+---
 
-La calculadora incorpora las operaciones implementadas en versiones anteriores:
+## 10. Organización del código
 
-- Suma
-- Resta
-- Multiplicación
-- División
+El proyecto se organiza actualmente un único paquete, con 3 archivos según su responsabilidad:
 
->También incorpora:
+```text
+main.go
+interfazCli.go
+operaciones.go
+```
 
-- Menú interactivo.
-- Validación de la opción introducida.
-- Salida mediante la opción correspondiente.
-- Solicitud de operandos.
-- Gestión de entradas inválidas.
-- Presentación del resultado.
-- Limpieza de la terminal entre iteraciones.
+### `main.go`
 
-### Criterio de evolución
+Contiene el punto de entrada y el control principal de ejecución.
 
-La v0.4 establece una etapa intermedia entre una implementación funcional y una organización progresivamente más profesional.
+### `interfazCli.go`
 
-Las modificaciones estructurales no se realizan únicamente para reducir líneas de código, sino para conseguir una distribución más clara de responsabilidades y facilitar la evolución futura del programa.
+Contiene las funciones relacionadas con la relación Programa <-> Usuario:
 
-Las decisiones de esta versión quedan cerradas como base para la siguiente etapa de desarrollo.
+* Entrada de usuario.
+* Solicitud de operandos.
+* Presentación de información.
+* Interfaz de consola.
 
-## Evolución formativa
+### `operaciones.go`
 
-La versión v0.4 me supone un avance importante no tanto por incorporar nuevas funcionalidades, sino por el cambio en la forma de analizar y estructurar el código.
+Contiene las funciones encargadas de realizar los cálculos matemáticos.
 
-Durante esta etapa siento que  empiezo a pasar de una visión centrada principalmente en hacer que el programa funcione a una visión más orientada a comprender por qué una determinada estructura es más adecuada que otra.
+---
 
-> Observo una evolución en varios aspectos:
+## 11. Evolución del proyecto
 
-- Mayor atención al alcance de las variables y a su ciclo de vida.
-- Comprensión de que una variable global no debe mantenerse como tal si solo pertenece a una función concreta.
-- Uso más consciente del paso de información mediante parámetros y valores de retorno.
-- Capacidad para distinguir entre una mejora funcional y una mejora estructural.
-- Comprensión de que separar responsabilidades puede mejorar mantenibilidad y escalabilidad aunque aumente o no reduzca el número de líneas.
-- Mayor criterio para decidir cuándo una abstracción aporta valor y cuándo introduce complejidad innecesaria.
-- Evaluación crítica de las sugerencias del editor o del lenguaje, evitando asumir que toda recomendación debe aplicarse automáticamente.
-- Mayor atención a la semántica de los nombres y a la legibilidad del código.
-- Inicio de una visión más arquitectónica del programa, pensando en cómo podrían evolucionar sus responsabilidades en futuras versiones.
-- Ampliación de vocabulario técnico y mayor soltura se expresión.
-- Inicio de desarrollo estructural de la documentación.
+El desarrollo comenzó con una implementación sencilla orientada principalmente a conseguir que la calculadora funcionara.
 
-> También se consolida una forma de razonamiento más cercana al desarrollo profesional:
+Durante las sucesivas versiones se fueron introduciendo mejoras estructurales a medida que aparecían nuevas necesidades.
 
-No basta con preguntarse si el código funciona; también es necesario analizar si sus responsabilidades están bien distribuidas, si los datos tienen el alcance adecuado y si la estructura facilita futuras modificaciones.
+La evolución llevó progresivamente a:
 
-Esta versión refleja, por tanto, una transición desde una implementación principalmente funcional hacia una forma de programación progresivamente más consciente del diseño, la mantenibilidad e intención del código.
+```text
+Código funcional
+      ↓
+Separación de responsabilidades
+      ↓
+Flujo de datos explícito
+      ↓
+Control del ámbito y ciclo de vida
+      ↓
+Funciones con responsabilidades concretas
+      ↓
+Estructura preparada para nuevas operaciones
+```
 
-El objetivo formativo continúa siendo avanzar de manera incremental: primero comprender el fundamento, después aplicarlo en Go y, finalmente, desarrollar criterio para justificar cada decisión de implementación.
+La refactorización realizada durante las versiones anteriores no tuvo como objetivo reducir el número de líneas, sino mejorar la organización y la comprensión del código.
+
+---
+
+## 12. Evolución formativa
+
+Este proyecto constituye el primer ejercicio práctico completo dentro del proceso de aprendizaje de programación con **Go**.
+
+La evolución del proyecto ha permitido trabajar progresivamente conceptos como:
+
+* variables y tipos;
+* funciones;
+* parámetros y valores de retorno;
+* ámbito de las variables;
+* ciclo de vida de los datos;
+* estructuras de control;
+* bucles;
+* `switch`;
+* `continue` y `break`;
+* conversión de tipos;
+* gestión de errores;
+* entrada y salida;
+* separación de responsabilidades;
+* flujo explícito de información;
+* nomenclatura semántica;
+* refactorización;
+* evaluación crítica de sugerencias del entorno de desarrollo.
+
+El aprendizaje no se ha limitado a conseguir un resultado funcional. También se ha trabajado el criterio necesario para determinar **por qué una determinada estructura resulta adecuada para una necesidad concreta**.
+
+Una decisión válida en una versión anterior puede dejar de ser la más adecuada cuando cambian los requisitos. La refactorización se utiliza, por tanto, como herramienta para adaptar la estructura del programa a las nuevas necesidades.
+
+---
+
+## 13. Alcance de la v1.0
+
+La versión `v1.0` se considera finalizada al disponer de una calculadora básica funcional que integra las seis operaciones previstas y una estructura suficientemente organizada para los objetivos del primer proyecto.
+
+No se incorporan en esta versión funcionalidades adicionales como:
+
+* Expresiones matemáticas combinadas.
+* Precedencia entre operadores.
+* Operaciones con un número variable de operandos.
+* Historial de operaciones.
+* Persistencia de datos.
+* Interfaz gráfica.
+* Nuevas categorías de operaciones.
+
+Estas funcionalidades podrán constituir objetivos de versiones futuras.
+
+---
+
+## 14. Estado
+
+**Versión:** `v1.0`
+**Estado:** Finalizada
+**Tipo:** Primer proyecto práctico de programación con Go
+
