@@ -50,7 +50,7 @@ func esperaContinuar() {
 	scanner.Scan()
 }
 func limpiarTerminal() {
-	cmd := exec.Command("cmd", "/c", "cls")
+	cmd := exec.Command("cmd", "/c", "cls", "clear")
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 }
@@ -74,7 +74,7 @@ func procesOperacion(opcionrecogida int) (operandoInvalido bool, resulOpr float3
 
 	switch opcionrecogida {
 	case 1:
-		sumando1, sumando2, _ := solOperAdicion()
+		sumando1, sumando2, _ := solOperAdicion( /*Modificación para PRUEBAS*/ )
 		resulOpr = calcAdicion(sumando1, sumando2)
 	case 2:
 		minuendo, sustraendo, _ := solOperSustraccion()

@@ -24,13 +24,13 @@ func solEntrOpcion() (int, error) {
 	}
 	return int(opcionSolicitada), nil
 }
-func solOperAdicion() (float32, float32, error) {
-	entrUsr1 := solEntrUsr("\nIntroduce el primer sumando: ")
+func solOperAdicion( /*Moificación para PRUEBAS*/ ) (float32, float32, error) {
+	entrUsr1 := solEntrUsr("\nIntroduce el primer sumando: ") // Anular para realizar PRUEBAS
 	sumando1, err := strconv.ParseFloat(entrUsr1, 32)
 	if err != nil {
 		return 0, 0, err
 	}
-	entrUsr2 := solEntrUsr("\nIntroduce el segundo sumando: ")
+	entrUsr2 := solEntrUsr("\nIntroduce el segundo sumando: ") // Anular para realizar PRUEBAS
 	sumando2, err := strconv.ParseFloat(entrUsr2, 32)
 	if err != nil {
 		return 0, 0, err

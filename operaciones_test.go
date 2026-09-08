@@ -76,3 +76,39 @@ func TestCalcDivision(t *testing.T) {
 
 	}
 }
+func TestCalcPotencia(t *testing.T) {
+	casos := []struct {
+		num1     float32
+		num2     float32
+		pruebaok float32
+	}{
+		{2, 3, 8},
+		{1.8, 1.2, 2.024543},
+		{10, -100, 0},
+	}
+	for _, caso := range casos {
+		resultadoPrueba := calcPotencia(caso.num1, caso.num2)
+		if resultadoPrueba != caso.pruebaok {
+			t.Errorf(">>> Espectativa : %v <<< | <<< Realidad : %v >>>", caso.pruebaok, resultadoPrueba)
+		}
+
+	}
+}
+func TestCalcRaiz(t *testing.T) {
+	casos := []struct {
+		num1     float32
+		num2     float32
+		pruebaok float32
+	}{
+		{52, 3, 3.732511},
+		{20, 2, 4.472136},
+		{10, -5, 0.63095737},
+	}
+	for _, caso := range casos {
+		resultadoPrueba := calcRaiz(caso.num1, caso.num2)
+		if resultadoPrueba != caso.pruebaok {
+			t.Errorf(">>> Espectativa : %v <<< | <<< Realidad : %v >>>", caso.pruebaok, resultadoPrueba)
+		}
+
+	}
+}
